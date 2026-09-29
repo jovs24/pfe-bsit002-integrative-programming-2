@@ -11,14 +11,34 @@ class EmployeeController extends Controller
 {
     /**
      * Week 4: list all employees.
+     * Week 5: eager-load the department relationship and support
+     * ?search=, ?department_id=, and ?page= (10 per page).
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(Employee::all());
+        $query = Employee::with('department');
+
+        if ($request->has('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+
+        return response()->json($query->paginate(10));
     }
 
     /**
-     * Week 4: create an employee.
+     * Week 4: create an employee. Validation matches Week 5's relationship
+     * design, so `department_id` (not the legacy `department` string) is
+     * what links an employee to a Department record.
      */
     public function store(Request $request): JsonResponse
     {
@@ -26,11 +46,11 @@ class EmployeeController extends Controller
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:employees,email',
-            'department' => 'required|string|max:100',
+            'department_id' => 'required|exists:departments,id',
             'position' => 'required|string|max:100',
         ]);
 
-        $employee = Employee::create($validated);
+        $employee = Employee::create($validated)->load('department');
 
         return response()->json($employee, 201);
     }
@@ -40,7 +60,7 @@ class EmployeeController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $employee = Employee::find($id);
+        $employee = Employee::with('department')->find($id);
 
         if (! $employee) {
             return response()->json(['message' => 'Employee not found'], 404);
@@ -64,13 +84,13 @@ class EmployeeController extends Controller
             'first_name' => 'sometimes|string|max:100',
             'last_name' => 'sometimes|string|max:100',
             'email' => 'sometimes|email|unique:employees,email,'.$id,
-            'department' => 'sometimes|string|max:100',
+            'department_id' => 'sometimes|exists:departments,id',
             'position' => 'sometimes|string|max:100',
         ]);
 
         $employee->update($validated);
 
-        return response()->json($employee);
+        return response()->json($employee->load('department'));
     }
 
     /**
