@@ -1,0 +1,152 @@
+{
+  "info": {
+    "name": "PFEBSIT 002 - Module 1 (Weeks 1-6)",
+    "description": "Import into Postman to test every endpoint built across Weeks 1-6. Set the collection variable {{base_url}} (default http://127.0.0.1:8000/api) and {{token}} after logging in.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Always tell Laravel we want JSON back. Without this, Laravel treats",
+          "// requests without a token as browser requests and tries to redirect",
+          "// to a login page that doesn't exist in this API-only project,",
+          "// producing a confusing 500 instead of a clean 401.",
+          "pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Week 2 - GET /students",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/students"
+      }
+    },
+    {
+      "name": "Week 6 - POST /register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin2@example.com\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Week 6 - POST /login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Week 4/5 - GET /employees",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/employees"
+      }
+    },
+    {
+      "name": "Week 5 - GET /employees?search=juan",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/employees?search=juan"
+      }
+    },
+    {
+      "name": "Week 5 - GET /employees?department_id=1",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/employees?department_id=1"
+      }
+    },
+    {
+      "name": "Week 5 - GET /employees?page=1",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/employees?page=1"
+      }
+    },
+    {
+      "name": "Week 4 - GET /employees/1",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/employees/1"
+      }
+    },
+    {
+      "name": "Week 4 - POST /employees",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/employees",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Dela Cruz\",\n  \"email\": \"juan.new@example.com\",\n  \"department_id\": 1,\n  \"position\": \"Programmer\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Week 4 - PUT /employees/1",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/employees/1",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"position\": \"Senior Programmer\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Week 4 - DELETE /employees/1",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/employees/1"
+      }
+    },
+    {
+      "name": "Week 6 - GET /employees (no token, expect 401)",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/employees"
+      }
+    },
+    {
+      "name": "Week 6 - POST /logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/logout"
+      }
+    }
+  ]
+}
